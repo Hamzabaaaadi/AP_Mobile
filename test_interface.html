@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚌 Test Bus Tracking System</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .test-section {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        button {
+            background: linear-gradient(45deg, #FF6B6B, #FF8E8E);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+            box-shadow: 0 4px 15px 0 rgba(255, 107, 107, 0.3);
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px 0 rgba(255, 107, 107, 0.4);
+        }
+        .result {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            border-left: 4px solid #4ECDC4;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+            text-align: center;
+        }
+        .status.success {
+            background-color: rgba(76, 175, 80, 0.3);
+            border: 2px solid #4CAF50;
+        }
+        .status.error {
+            background-color: rgba(244, 67, 54, 0.3);
+            border: 2px solid #f44336;
+        }
+        .status.loading {
+            background-color: rgba(255, 193, 7, 0.3);
+            border: 2px solid #FFC107;
+        }
+        .emoji {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚌 Test Bus Tracking System</h1>
+        
+        <div class="test-section">
+            <h2><span class="emoji">🔍</span>État du Serveur</h2>
+            <button onclick="testServerStatus()">Vérifier le Serveur</button>
+            <div id="server-status"></div>
+        </div>
+
+        <div class="test-section">
+            <h2><span class="emoji">🚍</span>Test des Bus</h2>
+            <button onclick="testBuses()">Charger les Bus</button>
+            <button onclick="testBusDetails(1)">Détails Bus #1</button>
+            <div id="buses-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2><span class="emoji">🚏</span>Test des Arrêts</h2>
+            <button onclick="testStops()">Charger les Arrêts</button>
+            <button onclick="testPredictions(1)">Prédictions Arrêt #1</button>
+            <div id="stops-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2><span class="emoji">👥</span>Test Occupation</h2>
+            <button onclick="testOccupancy(1)">Occupation Bus #1</button>
+            <div id="occupancy-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2><span class="emoji">🔐</span>Test Authentification</h2>
+            <button onclick="testLogin()">Test Login Chauffeur</button>
+            <div id="auth-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2><span class="emoji">📊</span>Résumé Global</h2>
+            <button onclick="runAllTests()">Lancer Tous les Tests</button>
+            <div id="global-result"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:5000/api';
+
+        function setStatus(elementId, type, message) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function setResult(elementId, data) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="result">${JSON.stringify(data, null, 2)}</div>`;
+        }
+
+        async function testServerStatus() {
+            setStatus('server-status', 'loading', '⏳ Test en cours...');
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                if (response.ok) {
+                    setStatus('server-status', 'success', '✅ Serveur en ligne !');
+                } else {
+                    setStatus('server-status', 'error', '❌ Serveur accessible mais erreur');
+                }
+            } catch (error) {
+                setStatus('server-status', 'error', '❌ Serveur inaccessible - Vérifiez que start.bat a été lancé');
+            }
+        }
+
+        async function testBuses() {
+            setStatus('buses-result', 'loading', '⏳ Chargement des bus...');
+            try {
+                const response = await fetch(`${API_BASE}/buses`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setStatus('buses-result', 'success', `✅ ${data.length} bus trouvés !`);
+                    setResult('buses-result', data);
+                } else {
+                    setStatus('buses-result', 'error', '❌ Erreur lors du chargement des bus');
+                }
+            } catch (error) {
+                setStatus('buses-result', 'error', '❌ Impossible de contacter l\'API');
+            }
+        }
+
+        async function testBusDetails(busId) {
+            setStatus('buses-result', 'loading', `⏳ Chargement détails bus ${busId}...`);
+            try {
+                const response = await fetch(`${API_BASE}/buses/${busId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setStatus('buses-result', 'success', `✅ Détails bus ${busId} récupérés !`);
+                    setResult('buses-result', data);
+                } else {
+                    setStatus('buses-result', 'error', `❌ Bus ${busId} introuvable`);
+                }
+            } catch (error) {
+                setStatus('buses-result', 'error', '❌ Erreur de connexion');
+            }
+        }
+
+        async function testStops() {
+            setStatus('stops-result', 'loading', '⏳ Chargement des arrêts...');
+            try {
+                const response = await fetch(`${API_BASE}/stops`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setStatus('stops-result', 'success', `✅ ${data.length} arrêts trouvés !`);
+                    setResult('stops-result', data);
+                } else {
+                    setStatus('stops-result', 'error', '❌ Erreur lors du chargement des arrêts');
+                }
+            } catch (error) {
+                setStatus('stops-result', 'error', '❌ Impossible de contacter l\'API');
+            }
+        }
+
+        async function testPredictions(stopId) {
+            setStatus('stops-result', 'loading', `⏳ Chargement prédictions arrêt ${stopId}...`);
+            try {
+                const response = await fetch(`${API_BASE}/stops/${stopId}/predictions`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setStatus('stops-result', 'success', `✅ Prédictions arrêt ${stopId} récupérées !`);
+                    setResult('stops-result', data);
+                } else {
+                    setStatus('stops-result', 'error', `❌ Arrêt ${stopId} introuvable`);
+                }
+            } catch (error) {
+                setStatus('stops-result', 'error', '❌ Erreur de connexion');
+            }
+        }
+
+        async function testOccupancy(busId) {
+            setStatus('occupancy-result', 'loading', `⏳ Test occupation bus ${busId}...`);
+            try {
+                const response = await fetch(`${API_BASE}/buses/${busId}/occupancy`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setStatus('occupancy-result', 'success', `✅ Occupation bus ${busId} récupérée !`);
+                    setResult('occupancy-result', data);
+                } else {
+                    setStatus('occupancy-result', 'error', `❌ Erreur occupation bus ${busId}`);
+                }
+            } catch (error) {
+                setStatus('occupancy-result', 'error', '❌ Erreur de connexion');
+            }
+        }
+
+        async function testLogin() {
+            setStatus('auth-result', 'loading', '⏳ Test authentification...');
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'john.doe@buscompany.com',
+                        password: 'password123'
+                    })
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setStatus('auth-result', 'success', '✅ Authentification réussie !');
+                    setResult('auth-result', data);
+                } else {
+                    setStatus('auth-result', 'error', '❌ Échec authentification');
+                }
+            } catch (error) {
+                setStatus('auth-result', 'error', '❌ Erreur de connexion');
+            }
+        }
+
+        async function runAllTests() {
+            setStatus('global-result', 'loading', '⏳ Exécution de tous les tests...');
+            
+            let passedTests = 0;
+            const totalTests = 5;
+            
+            try {
+                // Test 1: Serveur
+                const serverResponse = await fetch(`${API_BASE}/health`).catch(() => null);
+                if (serverResponse && serverResponse.ok) passedTests++;
+
+                // Test 2: Bus
+                const busesResponse = await fetch(`${API_BASE}/buses`).catch(() => null);
+                if (busesResponse && busesResponse.ok) passedTests++;
+
+                // Test 3: Arrêts
+                const stopsResponse = await fetch(`${API_BASE}/stops`).catch(() => null);
+                if (stopsResponse && stopsResponse.ok) passedTests++;
+
+                // Test 4: Prédictions
+                const predictionsResponse = await fetch(`${API_BASE}/stops/1/predictions`).catch(() => null);
+                if (predictionsResponse && predictionsResponse.ok) passedTests++;
+
+                // Test 5: Auth
+                const authResponse = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'john.doe@buscompany.com',
+                        password: 'password123'
+                    })
+                }).catch(() => null);
+                if (authResponse && authResponse.ok) passedTests++;
+
+                const percentage = (passedTests / totalTests) * 100;
+                const status = passedTests === totalTests ? 'success' : passedTests > totalTests/2 ? 'loading' : 'error';
+                const emoji = passedTests === totalTests ? '🎉' : passedTests > totalTests/2 ? '⚠️' : '❌';
+                
+                setStatus('global-result', status, `${emoji} ${passedTests}/${totalTests} tests réussis (${percentage.toFixed(0)}%)`);
+                
+                const summary = {
+                    tests_passed: passedTests,
+                    tests_total: totalTests,
+                    percentage: percentage.toFixed(1) + '%',
+                    status: passedTests === totalTests ? 'Excellent !' : passedTests > totalTests/2 ? 'Partiellement fonctionnel' : 'Problèmes détectés'
+                };
+                
+                setResult('global-result', summary);
+                
+            } catch (error) {
+                setStatus('global-result', 'error', '❌ Erreur lors des tests globaux');
+            }
+        }
+
+        // Test automatique au chargement de la page
+        window.onload = function() {
+            setTimeout(testServerStatus, 1000);
+        };
+    </script>
+</body>
+</html>

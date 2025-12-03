@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚌 App Chauffeur - Bus Tracking</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .phone-container {
+            max-width: 375px;
+            margin: 0 auto;
+            background: #000;
+            border-radius: 40px;
+            padding: 20px 10px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .phone-screen {
+            background: white;
+            border-radius: 30px;
+            overflow: hidden;
+            min-height: 700px;
+            position: relative;
+        }
+
+        .status-bar {
+            background: #000;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .driver-header {
+            background: linear-gradient(45deg, #FF6B35, #F7931E);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .driver-header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .driver-header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .login-screen {
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .login-screen.hidden {
+            display: none;
+        }
+
+        .login-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #FF6B35;
+        }
+
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(45deg, #FF6B35, #F7931E);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .dashboard {
+            padding: 20px;
+            display: none;
+        }
+
+        .dashboard.active {
+            display: block;
+        }
+
+        .driver-info {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .driver-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .bus-assignment {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .status-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .status-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4CAF50;
+        }
+
+        .status-indicator.warning {
+            background: #FF9800;
+        }
+
+        .status-indicator.error {
+            background: #F44336;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .metric-label {
+            color: #666;
+        }
+
+        .metric-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .action-btn {
+            padding: 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #4CAF50, #45A049);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #E3F2FD;
+            color: #1976D2;
+        }
+
+        .btn-warning {
+            background: #FFF3E0;
+            color: #F57C00;
+        }
+
+        .btn-danger {
+            background: #FFEBEE;
+            color: #D32F2F;
+        }
+
+        .passenger-counter {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .counter-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 16px;
+        }
+
+        .counter-display {
+            font-size: 48px;
+            font-weight: bold;
+            color: #FF6B35;
+            margin-bottom: 16px;
+        }
+
+        .counter-controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .counter-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+        }
+
+        .counter-btn.minus {
+            background: #F44336;
+        }
+
+        .counter-btn.plus {
+            background: #4CAF50;
+        }
+
+        .demo-note {
+            text-align: center;
+            padding: 15px;
+            background: #FFF3E0;
+            color: #E65100;
+            font-size: 14px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <div class="phone-screen">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>📶 📲 🔋</span>
+            </div>
+
+            <div class="driver-header">
+                <h1>🚌 Chauffeur</h1>
+                <p>Application professionnelle</p>
+            </div>
+
+            <!-- Écran de connexion -->
+            <div id="loginScreen" class="login-screen">
+                <div class="login-title">Connexion Chauffeur</div>
+                
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" value="jean.dupont@buscompany.com" placeholder="Votre email">
+                </div>
+                
+                <div class="input-group">
+                    <label for="password">Mot de passe</label>
+                    <input type="password" id="password" value="password123" placeholder="Votre mot de passe">
+                </div>
+                
+                <button class="login-btn" onclick="login()">Se connecter</button>
+                
+                <div class="demo-note" style="margin-top: 20px;">
+                    📝 Comptes de test :<br>
+                    jean.dupont@buscompany.com<br>
+                    marie.martin@buscompany.com<br>
+                    Mot de passe : password123
+                </div>
+            </div>
+
+            <!-- Tableau de bord -->
+            <div id="dashboard" class="dashboard">
+                <div class="driver-info">
+                    <div class="driver-name">Jean Dupont</div>
+                    <div class="bus-assignment">Bus 101 - Ligne Centre-ville</div>
+                </div>
+
+                <div class="status-card">
+                    <div class="status-header">
+                        <span class="status-title">État du service</span>
+                        <div class="status-indicator"></div>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Position GPS</span>
+                        <span class="metric-value">✅ Active</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Temps de service</span>
+                        <span class="metric-value">2h 45min</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Prochaine station</span>
+                        <span class="metric-value">Centre-ville (3min)</span>
+                    </div>
+                </div>
+
+                <div class="passenger-counter">
+                    <div class="counter-title">Passagers à bord</div>
+                    <div class="counter-display" id="passengerCount">15</div>
+                    <div style="color: #666; margin-bottom: 16px;">/ 50 places</div>
+                    <div class="counter-controls">
+                        <button class="counter-btn minus" onclick="updatePassengers(-1)">−</button>
+                        <button class="counter-btn plus" onclick="updatePassengers(1)">+</button>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="action-btn btn-primary" onclick="toggleService()">
+                        <span>🟢</span>
+                        <span id="serviceText">En service</span>
+                    </button>
+                    
+                    <button class="action-btn btn-secondary" onclick="sendPosition()">
+                        <span>📍</span>
+                        <span>Position</span>
+                    </button>
+                    
+                    <button class="action-btn btn-warning" onclick="reportIssue()">
+                        <span>⚠️</span>
+                        <span>Incident</span>
+                    </button>
+                    
+                    <button class="action-btn btn-danger" onclick="emergency()">
+                        <span>🚨</span>
+                        <span>Urgence</span>
+                    </button>
+                </div>
+
+                <div class="status-card">
+                    <div class="status-header">
+                        <span class="status-title">Statistiques du jour</span>
+                        <div class="status-indicator warning"></div>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Passagers transportés</span>
+                        <span class="metric-value">147</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Distance parcourue</span>
+                        <span class="metric-value">78 km</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Arrêts desservis</span>
+                        <span class="metric-value">24</span>
+                    </div>
+                </div>
+
+                <div class="demo-note">
+                    👨‍💼 Application chauffeur connectée au backend<br>
+                    Les mises à jour sont envoyées en temps réel
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let passengerCount = 15;
+        let inService = true;
+
+        function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (email && password) {
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('dashboard').classList.add('active');
+            }
+        }
+
+        function updatePassengers(delta) {
+            passengerCount = Math.max(0, Math.min(50, passengerCount + delta));
+            document.getElementById('passengerCount').textContent = passengerCount;
+            
+            // Simuler l'envoi au backend
+            console.log('Mise à jour passagers:', passengerCount);
+        }
+
+        function toggleService() {
+            inService = !inService;
+            const serviceText = document.getElementById('serviceText');
+            const btn = event.target.closest('.action-btn');
+            
+            if (inService) {
+                serviceText.textContent = 'En service';
+                btn.querySelector('span').textContent = '🟢';
+                btn.className = 'action-btn btn-primary';
+            } else {
+                serviceText.textContent = 'Hors service';
+                btn.querySelector('span').textContent = '🔴';
+                btn.className = 'action-btn btn-danger';
+            }
+        }
+
+        function sendPosition() {
+            // Simuler l'envoi de position GPS
+            const btn = event.target.closest('.action-btn');
+            btn.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                btn.style.transform = 'scale(1)';
+            }, 200);
+            
+            console.log('Position GPS envoyée');
+        }
+
+        function reportIssue() {
+            alert('🚨 Incident signalé au centre de contrôle');
+        }
+
+        function emergency() {
+            if (confirm('⚠️ Déclencher une alerte d\'urgence ?')) {
+                alert('🚨 ALERTE URGENCE ACTIVÉE\nCentre de secours notifié');
+            }
+        }
+
+        // Simulation de mises à jour en temps réel
+        setInterval(() => {
+            // Simuler des changements de données
+            const timeElement = document.querySelector('.metric-value');
+            if (timeElement && timeElement.textContent.includes('h')) {
+                const [hours, minutes] = timeElement.textContent.match(/\d+/g).map(Number);
+                const totalMinutes = hours * 60 + minutes + 1;
+                const newHours = Math.floor(totalMinutes / 60);
+                const newMinutes = totalMinutes % 60;
+                timeElement.textContent = `${newHours}h ${newMinutes}min`;
+            }
+        }, 60000); // Mise à jour chaque minute
+
+        // Style pour les transitions
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            btn.style.transition = 'transform 0.2s ease';
+        });
+    </script>
+</body>
+</html>

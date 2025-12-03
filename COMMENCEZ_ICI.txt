@@ -1,0 +1,36 @@
+🚌 SYSTÈME DE SUIVI DE BUS - PRÊT À TESTER !
+================================================
+
+👇 POUR TESTER EN 30 SECONDES :
+
+1. Double-cliquez sur : DEMARRAGE_TOUT_EN_UN.bat
+2. Attendez que votre navigateur s'ouvre
+3. Une interface colorée apparaît = ça marche ! 🎉
+
+👇 SI VOUS VOULEZ COMPRENDRE :
+
+1. Lisez : GUIDE_5MIN.md (rapide)
+2. Ou lisez : GUIDE_DEBUTANT.md (détaillé)
+
+👇 POUR ARRÊTER :
+
+Double-cliquez sur : stop.bat
+
+👇 EN CAS DE PROBLÈME :
+
+Lisez : COMMENT_COMMENCER.md (toutes les solutions)
+
+================================================
+
+🎯 VOUS TESTEZ QUOI ?
+
+Un vrai système de transport intelligent avec :
+✅ Serveur backend (comme Uber/Citymapper)
+✅ Intelligence artificielle (prédictions)
+✅ Applications mobiles (utilisateur + chauffeur)  
+✅ Base de données temps réel
+✅ API REST complète
+
+C'est un système professionnel complet ! 🚀
+
+================================================

@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📱 Aperçu Application Mobile - Bus Tracking</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .phone-container {
+            max-width: 375px;
+            margin: 0 auto;
+            background: #000;
+            border-radius: 40px;
+            padding: 20px 10px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .phone-screen {
+            background: white;
+            border-radius: 30px;
+            overflow: hidden;
+            min-height: 700px;
+            position: relative;
+        }
+
+        .status-bar {
+            background: #000;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .app-header {
+            background: linear-gradient(45deg, #2196F3, #21CBF3);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .app-header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .app-header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .tab-bar {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            background: none;
+            border: none;
+            color: #6c757d;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            color: #2196F3;
+            background: white;
+            border-bottom: 3px solid #2196F3;
+        }
+
+        .screen {
+            display: none;
+            padding: 20px;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .bus-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #4CAF50;
+        }
+
+        .bus-card.busy {
+            border-left-color: #FF9800;
+        }
+
+        .bus-card.full {
+            border-left-color: #F44336;
+        }
+
+        .bus-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .bus-number {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .bus-status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-online {
+            background: #E8F5E8;
+            color: #4CAF50;
+        }
+
+        .eta-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .eta-icon {
+            color: #2196F3;
+        }
+
+        .eta-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2196F3;
+        }
+
+        .occupancy-bar {
+            background: #E0E0E0;
+            border-radius: 3px;
+            height: 6px;
+            margin-bottom: 8px;
+            overflow: hidden;
+        }
+
+        .occupancy-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .occupancy-fill.low { background: #4CAF50; }
+        .occupancy-fill.medium { background: #FF9800; }
+        .occupancy-fill.high { background: #F44336; }
+
+        .occupancy-text {
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+        }
+
+        .stop-item {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stop-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .stop-distance {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .next-bus {
+            text-align: right;
+        }
+
+        .next-bus-time {
+            font-weight: 600;
+            color: #2196F3;
+        }
+
+        .map-placeholder {
+            background: #E3F2FD;
+            border-radius: 8px;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1976D2;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .floating-button {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: #2196F3;
+            color: white;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: none;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+            cursor: pointer;
+        }
+
+        .demo-note {
+            text-align: center;
+            padding: 20px;
+            background: #FFF3E0;
+            color: #E65100;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <div class="phone-screen">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>📶 📲 🔋</span>
+            </div>
+
+            <div class="app-header">
+                <h1>🚌 Bus Tracker</h1>
+                <p>Suivi en temps réel</p>
+            </div>
+
+            <div class="tab-bar">
+                <button class="tab active" onclick="showScreen('home')">🏠 Carte</button>
+                <button class="tab" onclick="showScreen('stops')">🚏 Arrêts</button>
+                <button class="tab" onclick="showScreen('buses')">🚍 Bus</button>
+            </div>
+
+            <!-- Écran Carte -->
+            <div id="home" class="screen active">
+                <div class="map-placeholder">
+                    🗺️ Carte Interactive<br>
+                    <small>Position + Bus temps réel</small>
+                </div>
+                
+                <div class="bus-card">
+                    <div class="bus-header">
+                        <span class="bus-number">Bus 101</span>
+                        <span class="bus-status status-online">En service</span>
+                    </div>
+                    <div class="eta-info">
+                        <span class="eta-icon">⏰</span>
+                        <span class="eta-text">Arrive dans 3 min</span>
+                    </div>
+                    <div class="occupancy-bar">
+                        <div class="occupancy-fill low" style="width: 30%;"></div>
+                    </div>
+                    <div class="occupancy-text">15/50 places (30%)</div>
+                </div>
+
+                <div class="bus-card busy">
+                    <div class="bus-header">
+                        <span class="bus-number">Bus 102</span>
+                        <span class="bus-status status-online">En service</span>
+                    </div>
+                    <div class="eta-info">
+                        <span class="eta-icon">⏰</span>
+                        <span class="eta-text">Arrive dans 8 min</span>
+                    </div>
+                    <div class="occupancy-bar">
+                        <div class="occupancy-fill medium" style="width: 65%;"></div>
+                    </div>
+                    <div class="occupancy-text">33/50 places (65%)</div>
+                </div>
+            </div>
+
+            <!-- Écran Arrêts -->
+            <div id="stops" class="screen">
+                <div class="stop-item">
+                    <div>
+                        <div class="stop-name">Centre-ville</div>
+                        <div class="stop-distance">150m de vous</div>
+                    </div>
+                    <div class="next-bus">
+                        <div class="next-bus-time">3 min</div>
+                        <div class="stop-distance">Bus 101</div>
+                    </div>
+                </div>
+
+                <div class="stop-item">
+                    <div>
+                        <div class="stop-name">Université</div>
+                        <div class="stop-distance">800m de vous</div>
+                    </div>
+                    <div class="next-bus">
+                        <div class="next-bus-time">12 min</div>
+                        <div class="stop-distance">Bus 103</div>
+                    </div>
+                </div>
+
+                <div class="stop-item">
+                    <div>
+                        <div class="stop-name">Hôpital</div>
+                        <div class="stop-distance">1.2km de vous</div>
+                    </div>
+                    <div class="next-bus">
+                        <div class="next-bus-time">5 min</div>
+                        <div class="stop-distance">Bus 102</div>
+                    </div>
+                </div>
+
+                <div class="stop-item">
+                    <div>
+                        <div class="stop-name">Gare ONCF</div>
+                        <div class="stop-distance">2.1km de vous</div>
+                    </div>
+                    <div class="next-bus">
+                        <div class="next-bus-time">18 min</div>
+                        <div class="stop-distance">Bus 104</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Écran Bus -->
+            <div id="buses" class="screen">
+                <div class="bus-card">
+                    <div class="bus-header">
+                        <span class="bus-number">Bus 101 - Centre-ville</span>
+                        <span class="bus-status status-online">En service</span>
+                    </div>
+                    <div class="occupancy-bar">
+                        <div class="occupancy-fill low" style="width: 30%;"></div>
+                    </div>
+                    <div class="occupancy-text">Peu chargé • 15/50 places</div>
+                </div>
+
+                <div class="bus-card busy">
+                    <div class="bus-header">
+                        <span class="bus-number">Bus 102 - Université</span>
+                        <span class="bus-status status-online">En service</span>
+                    </div>
+                    <div class="occupancy-bar">
+                        <div class="occupancy-fill medium" style="width: 65%;"></div>
+                    </div>
+                    <div class="occupancy-text">Moyennement chargé • 33/50 places</div>
+                </div>
+
+                <div class="bus-card full">
+                    <div class="bus-header">
+                        <span class="bus-number">Bus 103 - Industrielle</span>
+                        <span class="bus-status status-online">En service</span>
+                    </div>
+                    <div class="occupancy-bar">
+                        <div class="occupancy-fill high" style="width: 85%;"></div>
+                    </div>
+                    <div class="occupancy-text">Très chargé • 43/50 places</div>
+                </div>
+
+                <div class="bus-card">
+                    <div class="bus-header">
+                        <span class="bus-number">Bus 104 - Résidentiel</span>
+                        <span class="bus-status status-online">En service</span>
+                    </div>
+                    <div class="occupancy-bar">
+                        <div class="occupancy-fill low" style="width: 20%;"></div>
+                    </div>
+                    <div class="occupancy-text">Peu chargé • 10/50 places</div>
+                </div>
+            </div>
+
+            <div class="demo-note">
+                📱 Aperçu de l'application mobile utilisateur<br>
+                Les données sont simulées en temps réel
+            </div>
+
+            <button class="floating-button" onclick="updateData()">🔄</button>
+        </div>
+    </div>
+
+    <script>
+        function showScreen(screenId) {
+            // Masquer tous les écrans
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            // Désactiver tous les onglets
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Afficher l'écran sélectionné
+            document.getElementById(screenId).classList.add('active');
+            
+            // Activer l'onglet correspondant
+            event.target.classList.add('active');
+        }
+
+        function updateData() {
+            // Simuler une mise à jour des données
+            const busCards = document.querySelectorAll('.bus-card');
+            
+            busCards.forEach(card => {
+                const occupancyBar = card.querySelector('.occupancy-fill');
+                const occupancyText = card.querySelector('.occupancy-text');
+                const etaText = card.querySelector('.eta-text');
+                
+                // Générer des données aléatoires
+                const occupancy = Math.floor(Math.random() * 80) + 10;
+                const eta = Math.floor(Math.random() * 15) + 1;
+                const capacity = 50;
+                const passengers = Math.floor((occupancy / 100) * capacity);
+                
+                // Mettre à jour la barre d'occupation
+                occupancyBar.style.width = occupancy + '%';
+                
+                // Changer la couleur selon l'occupation
+                occupancyBar.className = 'occupancy-fill ' + 
+                    (occupancy < 40 ? 'low' : occupancy < 70 ? 'medium' : 'high');
+                
+                // Mettre à jour le texte
+                if (occupancyText) {
+                    occupancyText.textContent = `${passengers}/${capacity} places (${occupancy}%)`;
+                }
+                
+                if (etaText) {
+                    etaText.textContent = `Arrive dans ${eta} min`;
+                }
+            });
+
+            // Animation de feedback
+            const button = document.querySelector('.floating-button');
+            button.style.transform = 'rotate(360deg)';
+            setTimeout(() => {
+                button.style.transform = 'rotate(0deg)';
+            }, 500);
+        }
+
+        // Mise à jour automatique toutes les 10 secondes
+        setInterval(updateData, 10000);
+
+        // Transition CSS pour le bouton
+        document.querySelector('.floating-button').style.transition = 'transform 0.5s ease';
+    </script>
+</body>
+</html>
