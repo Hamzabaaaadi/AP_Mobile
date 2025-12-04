@@ -240,13 +240,21 @@ const StopsScreen = ({ navigation }) => {
       {/* Header avec recherche */}
       <View style={styles.header}>
         <Text style={styles.title}>Arrêts de bus</Text>
-        
-        <TouchableOpacity 
-          onPress={() => setShowSearch(!showSearch)}
-          style={styles.searchButton}
-        >
-          <Ionicons name="search" size={24} color="#2196F3" />
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <TouchableOpacity 
+            onPress={() => setShowSearch(!showSearch)}
+            style={styles.searchButton}
+          >
+            <Ionicons name="search" size={24} color="#2196F3" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Trajectory')}
+            style={[styles.searchButton, { marginLeft: 12 }]}
+          >
+            <Ionicons name="navigate" size={24} color="#2196F3" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Barre de recherche */}

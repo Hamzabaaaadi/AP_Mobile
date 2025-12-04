@@ -12,6 +12,7 @@ import StopDetailsScreen from './src/screens/StopDetailsScreen';
 import BusDetailsScreen from './src/screens/BusDetailsScreen';
 import FavoritesScreen from './src/screens/FavoritesScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
+import TrajectoryScreen from './src/screens/TrajectoryScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -92,6 +93,11 @@ const RootStackNavigator = () => {
         name="MainTabs" 
         component={MainTabNavigator} 
         options={{ headerShown: false }} 
+      />
+      <Stack.Screen
+        name="Trajectory"
+        component={TrajectoryScreen}
+        options={{ title: 'Trajectoire', headerShown: true }}
       />
       <Stack.Screen 
         name="StopDetails" 
